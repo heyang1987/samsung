@@ -105,8 +105,11 @@ public class conglemerative {
         //System.out.println(wekaFunctions.train(dataYesArray, classIndex));
         //System.out.println(wekaFunctions.train(dataMultiArray, classIndex));
     }
-
-// Merge part of conglemerative, we deal with multiArray here
+    /*************************************************************/
+    /*Merge part of conglemerative, Strtege 1: pick highest first*/
+    /**
+     * @param ROUNDS
+     * @throws java.lang.Exception***********************************************************/
     public static void merge(int ROUNDS) throws Exception{
         
         double maxPairAccuracy = 0;
@@ -182,6 +185,91 @@ public class conglemerative {
         }       
     }
     
+    /************************************************************************/
+    /*Merge part of conglemerative, Strtege 1: pick smallest reduction first*/
+    /**
+     * @param ROUNDS*
+     * @throws java.lang.Exception*********************************************************************/
+    public static void merge2(int ROUNDS) throws Exception{
+        
+        for (int round = 0; round < ROUNDS; round++) {
+            double maxPairAccuracy = 0;
+            double maxAccuracyDiff = -10000;
+            double accuracySum = 0;
+            int maxIndexLeftHand = 0;
+            int maxIndexRightHand = 0;
+            int index=1;
+            
+            System.out.println("Round: " + (round+1) );
+            
+            for(int i = 0; i < multiArrayList.size();i++){
+                //System.out.println("element size: " + multiArrayList.get(i).size());
+                //System.out.println("element accuracy: " + multiAccuracyList.get(i));
+                accuracySum += multiArrayList.get(i).size()*multiAccuracyList.get(i);
+            }
+            System.out.println("Overall Accuracy: " + accuracySum);
+            
+            for (int i = 0; i < multiArrayList.size(); i++) {
+                for (int j = i+1; j < multiArrayList.size(); j++) {
+                    ArrayList<Integer> currentPair = new ArrayList<>(multiArrayList.get(i));
+                    currentPair.addAll(multiArrayList.get(j));
+                    
+                    arffFunctions.generateArff(currentPair, "docs/samsung_header.txt", "currentPair.arff");
+                    DataSource sourceCurrentPair = new DataSource("docs/currentPair.arff");
+                    Instances dataCurrentPair = sourceCurrentPair.getDataSet();
+                    double currentPairAccuracy = wekaFunctions.trainAndEval
+                        (dataCurrentPair, dataCurrentPair, classIndex);
+                    double pre = multiAccuracyList.get(i)*multiArrayList.get(i).size()
+                            +multiAccuracyList.get(j)*multiArrayList.get(j).size();
+                    
+                    double after = currentPairAccuracy*currentPair.size();
+                    double currentAccuracyDiff = after - pre;
+                    
+//                    System.out.print(after + "-" + pre + " = ");
+//                    System.out.println(currentAccuracyDiff);
+//                    
+//                    System.out.print((index++) + ": ");
+//                    for(Integer temp:multiArrayList.get(i)){  
+//                        System.out.print(temp);
+//                        System.out.print(" ");
+//                    }
+//                    System.out.print("("+ multiAccuracyList.get(i) +")"+",");
+//                    for(Integer temp:multiArrayList.get(j)){  
+//                        System.out.print(temp);
+//                        System.out.print(" ");
+//                    }
+//                    System.out.print("("+ multiAccuracyList.get(j) +")"+",");
+//                    System.out.println(currentPairAccuracy+"Diff:" + currentAccuracyDiff);                   
+                    
+                    if (currentAccuracyDiff > maxAccuracyDiff) {
+                        maxAccuracyDiff = currentAccuracyDiff;
+                        maxIndexLeftHand = i;
+                        maxIndexRightHand = j;
+                        maxPairAccuracy = currentPairAccuracy;
+                    }
+                }
+            }
+           
+            ArrayList<Integer> leftHand = multiArrayList.get(maxIndexLeftHand);
+            //System.out.println("LefthandAcc: " + multiAccuracyList.get(maxIndexLeftHand));
+            leftHand.addAll(multiArrayList.get(maxIndexRightHand));
+            multiAccuracyList.set(maxIndexLeftHand, maxPairAccuracy);
+            //System.out.println("LefthandAcc: " + multiAccuracyList.get(maxIndexLeftHand));
+            //System.out.println("Lefthand: " + leftHand);
+            multiArrayList.remove(maxIndexRightHand);
+            multiAccuracyList.remove(maxIndexRightHand);
+
+            System.out.println("---------------------------------------");
+            System.out.println("ROUNDS end: ");
+            for (ArrayList<Integer> next : multiArrayList) {
+                printRow(next);
+            }
+            System.out.println(maxIndexLeftHand + "," + maxIndexRightHand + ": " + maxAccuracyDiff);
+            System.out.println("======================================");
+        }       
+        
+    }
+    
     public static void printRow(ArrayList<Integer> row){
         for(Integer temp:row){  
             System.out.print(temp);
@@ -208,13 +296,11 @@ public class conglemerative {
     
     public static void main(String[] args) throws Exception{
         preprocessing();
-        //merge(434);
-        test();
+        merge2(434);
+        //test();
     }
     
     public static void test() throws IOException, Exception{
-        
-        int classIndex = 6;
         
         int l1 = constantVar.cluster1.length;
         int l2 = constantVar.cluster2.length;
