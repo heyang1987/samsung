@@ -294,9 +294,9 @@ public class conglemerative {
         System.out.println();
     }
     
-    public static void main(String[] args) throws Exception{
+    public static void main() throws Exception{
         preprocessing();
-        merge2(434);
+        //merge2(434);
         //test();
     }
     
@@ -305,75 +305,77 @@ public class conglemerative {
         int l1 = constantVar.cluster1.length;
         int l2 = constantVar.cluster2.length;
         int l3 = constantVar.cluster3.length;
-        int l4 = constantVar.cluster4.length;
-        int l5 = constantVar.cluster5.length;
+//        int l4 = constantVar.cluster4.length;
+//        int l5 = constantVar.cluster5.length;
         
         arffFunctions.generateArff(constantVar.cluster1, "docs/samsung_header.txt", "model1.arff");
         arffFunctions.generateArff(constantVar.cluster2, "docs/samsung_header.txt", "model2.arff");
         arffFunctions.generateArff(constantVar.cluster3, "docs/samsung_header.txt", "model3.arff");
-        arffFunctions.generateArff(constantVar.cluster4, "docs/samsung_header.txt", "model4.arff");
-        arffFunctions.generateArff(constantVar.cluster5, "docs/samsung_header.txt", "model5.arff");
+//        arffFunctions.generateArff(constantVar.cluster4, "docs/samsung_header.txt", "model4.arff");
+//        arffFunctions.generateArff(constantVar.cluster5, "docs/samsung_header.txt", "model5.arff");
 
         DataSource source1 = new DataSource("docs/model1.arff");
         DataSource source2 = new DataSource("docs/model2.arff");
         DataSource source3 = new DataSource("docs/model3.arff");
-        DataSource source4 = new DataSource("docs/model4.arff");
-        DataSource source5 = new DataSource("docs/model5.arff");
+//        DataSource source4 = new DataSource("docs/model4.arff");
+//        DataSource source5 = new DataSource("docs/model5.arff");
 
         Instances data1 = source1.getDataSet();
         Instances data2 = source2.getDataSet();
         Instances data3 = source3.getDataSet();
-        Instances data4 = source4.getDataSet();
-        Instances data5 = source5.getDataSet();
+//        Instances data4 = source4.getDataSet();
+//        Instances data5 = source5.getDataSet();
 
         data1.setClassIndex(classIndex);
         data2.setClassIndex(classIndex);
         data3.setClassIndex(classIndex);
-        data4.setClassIndex(classIndex);
-        data5.setClassIndex(classIndex);
+//        data4.setClassIndex(classIndex);
+//        data5.setClassIndex(classIndex);
 
         FilteredClassifier fc1 = wekaFunctions.train(data1, classIndex);
         FilteredClassifier fc2 = wekaFunctions.train(data2, classIndex);
         FilteredClassifier fc3 = wekaFunctions.train(data3, classIndex);
-        FilteredClassifier fc4 = wekaFunctions.train(data4, classIndex);
-        FilteredClassifier fc5 = wekaFunctions.train(data5, classIndex);
+//        FilteredClassifier fc4 = wekaFunctions.train(data4, classIndex);
+//        FilteredClassifier fc5 = wekaFunctions.train(data5, classIndex);
 
         double Array1Accuracy = wekaFunctions.eval(fc1, data1, data1);
         double Array2Accuracy = wekaFunctions.eval(fc2, data2, data2);
         double Array3Accuracy = wekaFunctions.eval(fc3, data3, data3);
-        double Array4Accuracy = wekaFunctions.eval(fc4, data4, data4);
-        double Array5Accuracy = wekaFunctions.eval(fc5, data5, data5);
+//        double Array4Accuracy = wekaFunctions.eval(fc4, data4, data4);
+//        double Array5Accuracy = wekaFunctions.eval(fc5, data5, data5);
         
         System.out.println("=============================================================================");
         System.out.println("fc1:\n " + fc1);
         System.out.println("fc2:\n " + fc2);
         System.out.println("fc3:\n " + fc3);
-        System.out.println("fc4:\n " + fc4);
-        System.out.println("fc5:\n " + fc5);
+//        System.out.println("fc4:\n " + fc4);
+//        System.out.println("fc5:\n " + fc5);
         
         System.out.println("Array1's accuracy: " + Array1Accuracy);
         System.out.println("Array2's accuracy: " + Array2Accuracy);
         System.out.println("Array3's accuracy: " + Array3Accuracy);
-        System.out.println("Array4's accuracy: " + Array4Accuracy);
-        System.out.println("Array5's accuracy: " + Array5Accuracy);
+//        System.out.println("Array4's accuracy: " + Array4Accuracy);
+//        System.out.println("Array5's accuracy: " + Array5Accuracy);
         
-//        System.out.println(l1+l2+count_no+count_yes + " participants' Average Accuracy: "
-//                + (Array1Accuracy*l1
-//                        +Array2Accuracy*l2
-//                        +noArrayAccuracy*count_no
-//                        +yesArrayAccuracy*count_yes)
-//                        /(l1+l2+count_no+count_yes)
-//        );
-        System.out.println(l1+l2+l3+l4+l5+count_no+count_yes + " participants' Average Accuracy: "
+        System.out.println(l1+l2+l3+count_no+count_yes + " participants' Average Accuracy: "
                 + (Array1Accuracy*l1
                         +Array2Accuracy*l2
                         +Array3Accuracy*l3
-                        +Array4Accuracy*l4
-                        +Array5Accuracy*l5
                         +noArrayAccuracy*count_no
                         +yesArrayAccuracy*count_yes)
-                        /(l1+l2+l3+l4+l5+count_no+count_yes)
+                        /(l1+l2+l3+count_no+count_yes)
         );
+        
+//        System.out.println(l1+l2+l3+l4+l5+count_no+count_yes + " participants' Average Accuracy: "
+//                + (Array1Accuracy*l1
+//                        +Array2Accuracy*l2
+//                        +Array3Accuracy*l3
+//                        +Array4Accuracy*l4
+//                        +Array5Accuracy*l5
+//                        +noArrayAccuracy*count_no
+//                        +yesArrayAccuracy*count_yes)
+//                        /(l1+l2+l3+l4+l5+count_no+count_yes)
+//        );
     }
 }    
 
