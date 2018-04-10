@@ -74,15 +74,6 @@ public class TwoArray {
 			fc1 = wekaFunctions.train(data1, classIndex);
 			fc2 = wekaFunctions.train(data2, classIndex);
                         
-			//System.out.println("Array1: " + array1);
-			//System.out.println("Array2: " + array2);
-			//System.out.println("Array3: " + array3);
-			//System.out.println("Array4: " + array4.size());
-			//System.out.println("Array1 size: " + array1.size());
-			//System.out.println("Array2 size: " + array2.size());
-			//System.out.println("Array3 size: " + array3.size());
-			//System.out.println("Array4 size: " + array4.size());
-                        
 			System.out.println("fc1 size: " + fc1.numElements());
 			System.out.println("fc2 size: " + fc2.numElements());
 

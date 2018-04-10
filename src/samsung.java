@@ -12,7 +12,7 @@
 public class samsung {
 
     public static void main(String[] args) throws Exception {
-	conglemerative.main();
+	//conglemerative.main();
     }
     
 }

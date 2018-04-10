@@ -11,7 +11,7 @@ import weka.filters.unsupervised.attribute.Remove;
 
 public class wekaFunctions {
     
-        public static FilteredClassifier getClassifier()
+        public static FilteredClassifier getFilteredClassifier()
         {
             Remove rm = new Remove();
             rm.setAttributeIndices("1");  // REMOVING ID ATTRIBUTE AS THAT WON'T BE INPUT TO THE CLASSIFIER
@@ -26,24 +26,56 @@ public class wekaFunctions {
             return cls;
         }
         
+        public static FilteredClassifier train(ArrayList<Integer> trainArray) throws Exception
+	{
+            arffFunctions.generateArff(trainArray, "docs/samsung_header.txt", "modelTrain.arff");
+            DataSource sourceTrain = new DataSource("docs/modelTrain.arff");
+            Instances dataTrain = sourceTrain.getDataSet();
+            dataTrain.setClassIndex((dataTrain.numAttributes()-1));
+
+            FilteredClassifier fc = getFilteredClassifier();
+            fc.buildClassifier(dataTrain);
+            return fc;
+	}
+        
 	public static FilteredClassifier train(Instances train, int classIndex) throws Exception
 	{
-            FilteredClassifier fc = getClassifier();
+            FilteredClassifier fc = getFilteredClassifier();
             train.setClassIndex(classIndex);
             fc.buildClassifier(train);
             return fc;
 		
 	}
         
-        public static FilteredClassifier trainNoPrune(Instances train, int classIndex) throws Exception
+        public static double trainSelfEval(ArrayList<Integer> array) throws Exception
 	{
-		train.setClassIndex(classIndex);
-		
-		FilteredClassifier fc = getClassifier();
-		// train
-		fc.buildClassifier(train);
-		return fc;
-		
+            arffFunctions.generateArff(array, "docs/samsung_header.txt", "model.arff");
+            DataSource source = new DataSource("docs/model.arff");
+            Instances data = source.getDataSet();
+            data.setClassIndex((data.numAttributes()-1));
+
+            FilteredClassifier cls = getFilteredClassifier();
+            cls.buildClassifier(data);
+            // evaluation
+            Evaluation eval = new Evaluation(data);
+            eval.evaluateModel(cls, data);
+            return eval.pctCorrect();
+	}
+        
+        public static double selfCVEval(ArrayList<Integer> array) throws Exception
+	{
+            arffFunctions.generateArff(array, "docs/samsung_header.txt", "model.arff");
+            DataSource source = new DataSource("docs/model.arff");
+            Instances data = source.getDataSet();
+            data.setClassIndex((data.numAttributes()-1));
+
+            FilteredClassifier cls = getFilteredClassifier();
+            //cls.buildClassifier(data);
+            // Cross Validation Evaluation
+            Random random = new Random();
+            Evaluation eval = new Evaluation(data);
+            eval.crossValidateModel(cls, data, 10, random);
+            return eval.pctCorrect();
 	}
 	
 	public static double eval(FilteredClassifier fc, Instances train, Instances test)  throws Exception
@@ -75,7 +107,7 @@ public class wekaFunctions {
             dataTrain.setClassIndex(classIndex);
             dataTest.setClassIndex(classIndex);
 		
-            FilteredClassifier fc = getClassifier();
+            FilteredClassifier fc = getFilteredClassifier();
             // train
             fc.buildClassifier(dataTrain);
             // evaluation
@@ -86,7 +118,7 @@ public class wekaFunctions {
         
 	public static double trainAndEval(Instances train, Instances test, int classIndex) throws Exception{
             train.setClassIndex(classIndex);		
-            FilteredClassifier fc = getClassifier();
+            FilteredClassifier fc = getFilteredClassifier();
             // train
             fc.buildClassifier(train);
             // evaluation
@@ -97,7 +129,7 @@ public class wekaFunctions {
         
         public static double trainAndEvalNoPrune(Instances train, Instances test, int classIndex) throws Exception{
             train.setClassIndex(classIndex);		
-            FilteredClassifier fc = getClassifier();
+            FilteredClassifier fc = getFilteredClassifier();
             // train
             fc.buildClassifier(train);
             Evaluation eval = new Evaluation(train);

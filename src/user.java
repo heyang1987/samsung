@@ -50,8 +50,8 @@ public class user {
         return true;
     }
 	
-	public static void main (String[] args) throws Exception {
-		splitUser();
-	}
+    public static void main (String[] args) throws Exception {
+            splitUser();
+    }
 
 }

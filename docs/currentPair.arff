@@ -1,0 +1,35 @@
+@relation 'iot_yang_fixed-weka.filters.unsupervised.attribute.Remove-R2-4,6-17-weka.filters.unsupervised.attribute.Reorder-R1,3-8,2-weka.filters.unsupervised.attribute.NumericToNominal-Rlast-weka.filters.unsupervised.attribute.Remove-R4'
+
+@attribute sessionId numeric
+@attribute whof {assis,tv,hvac,wash,secu,refr,light,alarm}
+@attribute purposef {preshouse,lochouse,opauto,alert}
+@attribute whatf {coalarm,locsens,colight,coassis,cohvac,cowash,micro,cotv,watch,corefri,cam,cosecu}
+@attribute cstore {share,remserv,locally}
+@attribute caction {reco,nothing,opti,insight}
+@attribute decision {0,1}
+
+@data
+465,alarm,preshouse,cotv,share,opti,0
+465,wash,alert,cohvac,remserv,opti,1
+465,refr,preshouse,cosecu,locally,insight,1
+465,light,preshouse,cowash,remserv,insight,0
+465,assis,lochouse,colight,remserv,reco,1
+465,secu,lochouse,coalarm,share,insight,0
+465,alarm,opauto,micro,locally,nothing,1
+465,secu,alert,watch,locally,opti,1
+465,refr,opauto,locsens,share,reco,0
+465,hvac,alert,cam,share,nothing,0
+465,tv,opauto,coassis,remserv,nothing,0
+465,hvac,lochouse,corefri,locally,reco,1
+890,hvac,opauto,cowash,locally,opti,1
+890,light,preshouse,coassis,locally,reco,1
+890,refr,alert,micro,share,opti,0
+890,light,opauto,corefri,share,nothing,0
+890,tv,alert,coalarm,remserv,insight,0
+890,secu,lochouse,cam,remserv,nothing,0
+890,alarm,preshouse,locsens,remserv,reco,0
+890,refr,lochouse,cohvac,locally,nothing,0
+890,wash,lochouse,cosecu,share,reco,0
+890,wash,alert,colight,locally,insight,1
+890,hvac,preshouse,watch,share,insight,0
+890,assis,opauto,cotv,remserv,opti,1
