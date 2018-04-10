@@ -26,6 +26,8 @@ public class conglemerative {
     public static int count_no=0, count_yes=0, count_multi=0;
     public static double noArrayAccuracy;
     public static double yesArrayAccuracy;
+    public static double maxMultiAccuracySum = 0;
+    public static ArrayList<ArrayList<Integer>> maxMultiArrayList;
     
     // preprocess the dataset, divide the participants into 3 clusters (ALL YES, ALL NO, and multi-node)
     public static void preprocessing() throws Exception{
@@ -77,17 +79,18 @@ public class conglemerative {
         yesArrayAccuracy = wekaFunctions.trainSelfEval(yesArray);
         System.out.println("noArray's accuracy is: " + noArrayAccuracy);
         System.out.println("yesArray's accuracy is: " + yesArrayAccuracy);
+        System.out.println("===========================================");
+        System.out.println("");
     }  
         
     public static void shuffleMultiArray() throws Exception {
         Collections.shuffle(multiArrayList);
-        for (Iterator<ArrayList<Integer>> iterator = multiArrayList.iterator(); iterator.hasNext();) {
-            ArrayList<Integer> next = iterator.next();
-            //System.out.println( next + ":" + wekaFunctions.trainSelfEval(next) );
+        multiAccuracyList.clear();
+        for (ArrayList<Integer> next : multiArrayList) {
+            //System.out.println( next );
             //multiArray.add(next.get(0));
             multiAccuracyList.add( wekaFunctions.trainSelfEval(next) );
         }
-
         System.out.println("multiAccuracyList's size is: " + multiAccuracyList.size());
    
     }
@@ -99,11 +102,12 @@ public class conglemerative {
      * @throws java.lang.Exception*********************************************************************/
     public static void merge1(int ROUNDS) throws Exception{
         
-        ArrayList<ArrayList<Integer>> multiArrayListCopy = new ArrayList<ArrayList<Integer>>(multiArrayList);
+        ArrayList<ArrayList<Integer>> multiArrayListCopy = new ArrayList<>(multiArrayList);
         
         for (int round = 0; round < ROUNDS; round++) {
             double maxPairAccuracy = 0;
             double maxAccuracyDiff = -10000;
+            int minTreeSize = 1000;
             double accuracySum = 0;
             int maxIndexLeftHand = 0;
             int maxIndexRightHand = 0;
@@ -114,8 +118,7 @@ public class conglemerative {
                 //System.out.println("element accuracy: " + multiAccuracyList.get(i));
                 accuracySum += multiArrayListCopy.get(i).size()*multiAccuracyList.get(i);
             }
-            System.out.println("Overall Accuracy: " + accuracySum);
-            accuracySum = 0;
+            System.out.println("Overall Accuracy: " + accuracySum + "\tAvg: " + accuracySum/436);
             
             System.out.println("Round: " + (round+1) );
             for (int i = 0; i < multiArrayListCopy.size(); i++) {
@@ -123,8 +126,9 @@ public class conglemerative {
                     ArrayList<Integer> currentPair = new ArrayList<>(multiArrayListCopy.get(i));
                     currentPair.addAll(multiArrayListCopy.get(j));
                     
-                    double currentPairAccuracy = wekaFunctions.trainSelfEval
-                        (currentPair);
+                    double currentPairAccuracy = wekaFunctions.trainSelfEval(currentPair);
+                    String cls = wekaFunctions.train(currentPair).getClassifier().toString();
+                    int currentTreeSize = Integer.parseInt( cls.substring(cls.length()-3, cls.length()-1).replaceAll(".*[^\\d](?=(\\d+))","") );
                     double pre = multiAccuracyList.get(i)*multiArrayListCopy.get(i).size()
                             +multiAccuracyList.get(j)*multiArrayListCopy.get(j).size();
                     
@@ -134,22 +138,35 @@ public class conglemerative {
 //                    System.out.print((index++) + ": ");
 //                    printRow(multiArrayListCopy.get(i));  
 //                    printRow(multiArrayListCopy.get(j));  
-//                    System.out.print("Diff: " + currentAccuracyDiff);                   
+//                    System.out.println("Diff: " + currentAccuracyDiff);
+//                   System.out.println("Size: " + currentTreeSize);
 //                    System.out.println(" Max: " + maxAccuracyDiff);
 
                     if (currentAccuracyDiff > maxAccuracyDiff) {
                         maxAccuracyDiff = currentAccuracyDiff;
+                        minTreeSize = currentTreeSize;
                         maxIndexLeftHand = i;
                         maxIndexRightHand = j;
                         maxPairAccuracy = currentPairAccuracy;
                     }
-                    //System.out.println("Max: " + maxAccuracyDiff); 
+                    else if (currentAccuracyDiff == maxAccuracyDiff) {
+                        if (currentTreeSize < minTreeSize) {
+                            minTreeSize = currentTreeSize;
+                            maxIndexLeftHand = i;
+                            maxIndexRightHand = j;
+                            maxPairAccuracy = currentPairAccuracy;                            
+                        }
+                    }
+//                    System.out.println("MaxDiff: " + maxAccuracyDiff);
+//                    System.out.println("MinSize: " + minTreeSize);
+//                    System.out.println("");
                 }
             }
-           
-            ArrayList<Integer> leftHand = multiArrayListCopy.get(maxIndexLeftHand);
+
+            ArrayList<Integer> leftHand = new ArrayList<>( multiArrayListCopy.get(maxIndexLeftHand) );
             //System.out.println("LefthandAcc: " + multiAccuracyList.get(maxIndexLeftHand));
             leftHand.addAll(multiArrayListCopy.get(maxIndexRightHand));
+            multiArrayListCopy.set(maxIndexLeftHand, leftHand);
             multiAccuracyList.set(maxIndexLeftHand, maxPairAccuracy);
             //System.out.println("LefthandAcc: " + multiAccuracyList.get(maxIndexLeftHand));
             //System.out.println("Lefthand: " + leftHand);
@@ -160,29 +177,18 @@ public class conglemerative {
             System.out.println("ROUNDS end: ");
             //System.out.println(multiArrayListCopy.size());
             //System.out.println(multiAccuracyList.size());
+            accuracySum = 0;
             for(int i = 0; i < multiArrayListCopy.size();i++){
-//                if (ROUNDS == 434) {
-//                    
-//                }
                 printRow(multiArrayListCopy.get(i));
-                //accuracySum += multiArrayListCopy.get(i).size()*multiAccuracyList.get(i);
+                accuracySum += multiArrayListCopy.get(i).size()*multiAccuracyList.get(i);
             }
             System.out.println();
             System.out.println(maxIndexLeftHand + "," + maxIndexRightHand + ": " + maxAccuracyDiff);
-            
-                //System.out.println("element size: " + multiArrayListCopy.get(i).size());
-                //System.out.println("element accuracy: " + multiAccuracyList.get(i));
-            
-            
-            for(int i = 0; i < multiArrayListCopy.size();i++){
-                //System.out.println("element size: " + multiArrayListCopy.get(i).size());
-                //System.out.println("element accuracy: " + multiAccuracyList.get(i));
-                double sum = multiArrayListCopy.get(i).size()*multiAccuracyList.get(i);
-                accuracySum += sum;
-                //System.out.println(accuracySum);
+            System.out.println("Overall Accuracy: " + accuracySum + "\tAvg: " + accuracySum/436);
+            if (round == (ROUNDS-1) && accuracySum > maxMultiAccuracySum ) {
+                maxMultiAccuracySum = accuracySum;
+                maxMultiArrayList = new ArrayList<>(multiArrayListCopy);
             }
-            System.out.println("Overall Accuracy: " + accuracySum);            
-            
             System.out.println("======================================");
 
         }       
@@ -273,10 +279,9 @@ public class conglemerative {
 
     public static void printRow(ArrayList<Integer> row){
         for(Integer temp:row){  
-            System.out.print(temp);
-            System.out.print(" ");
+            System.out.print(temp+", ");
         }
-        System.out.print(", ");
+        System.out.println("");
     }
     
     public static void printRow(int[] row) {
@@ -375,14 +380,21 @@ public class conglemerative {
         
     public static void main(String[] args) throws Exception {
         preprocessing();
-        //for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             shuffleMultiArray();
-            merge1(1);
-        //}
-        
+            merge1(434);
+        }
+        for(int j = 0; j < maxMultiArrayList.size();j++){
+                       
+            System.out.print( "Classifier " + (j+1) +" for:     ");
+            printRow(maxMultiArrayList.get(j));
+            System.out.println("");
+            String cls = wekaFunctions.train(maxMultiArrayList.get(j)).getClassifier().toString();
+            System.out.println(cls);
+            //String str = cls.substring(cls.length()-3, cls.length()-1).replaceAll(".*[^\\d](?=(\\d+))","");           
+            //System.out.println( Integer.parseInt(str) );           
+            System.out.println( "Accuracy: " + wekaFunctions.trainSelfEval(maxMultiArrayList.get(j)));
+        }
         //test();
     }
-}    
-
-
-
+}
